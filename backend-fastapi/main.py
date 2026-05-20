@@ -512,6 +512,14 @@ def extract_best_answer(
     }
 
 
+@app.get("/")
+def root():
+    return {
+        "success": True,
+        "message": "PDF QA Backend is running on Hugging Face Spaces."
+    }
+
+
 @app.get("/api/health")
 def health_check():
     return {
