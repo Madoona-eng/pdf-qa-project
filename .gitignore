@@ -1,6 +1,7 @@
 backend-fastapi/venv/
 frontend-angular/node_modules/
 frontend-angular/dist/
+frontend-angular/.angular/
 __pycache__/
 *.pyc
 .env
