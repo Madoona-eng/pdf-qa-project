@@ -1,0 +1,216 @@
+<section class="reader-page">
+  <div class="bg-orb orb-blue"></div>
+  <div class="bg-orb orb-purple"></div>
+  <div class="bg-orb orb-mint"></div>
+
+  <!-- Header -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">📘</div>
+      <div>
+        <span>NLP Project</span>
+        <h1>Ask Your PDF</h1>
+      </div>
+    </div>
+
+    <div class="status-pill">
+      <span></span>
+      Angular + FastAPI + NLP
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="workspace">
+    <!-- Left: PDF Panel -->
+    <aside class="document-panel">
+      <div class="panel-title">
+        <div class="title-icon">📄</div>
+        <div>
+          <h2>Document</h2>
+          <p>Upload your PDF file</p>
+        </div>
+      </div>
+
+      <label class="upload-area">
+        <input
+          type="file"
+          accept=".pdf,application/pdf"
+          (change)="onFileSelected($event)"
+        />
+
+        <div class="pdf-illustration">
+          <div class="pdf-paper">
+            <span>PDF</span>
+          </div>
+        </div>
+
+        <h3>{{ selectedFile?.name || 'Choose PDF file' }}</h3>
+        <p>Text-based PDF files are supported</p>
+      </label>
+
+      <button
+        class="main-btn upload-btn"
+        type="button"
+        (click)="uploadPdf()"
+        [disabled]="!selectedFile || loadingUpload"
+      >
+        <span *ngIf="!loadingUpload">Upload & Analyze</span>
+
+        <span *ngIf="loadingUpload" class="loader-text">
+          <i></i>
+          Processing...
+        </span>
+      </button>
+
+      <div class="doc-card" *ngIf="uploadedPdf">
+        <div class="doc-success">✓</div>
+
+        <div class="doc-info">
+          <strong>{{ uploadedPdf.fileName }}</strong>
+          <span>Document indexed successfully</span>
+
+          <div class="doc-stats">
+            <div>
+              <b>{{ uploadedPdf.pagesCount }}</b>
+              <small>Pages</small>
+            </div>
+
+            <div>
+              <b>{{ uploadedPdf.chunksCount }}</b>
+              <small>Chunks</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mini-flow">
+        <div class="flow-item active">
+          <span>1</span>
+          Upload
+        </div>
+
+        <div class="flow-line"></div>
+
+        <div class="flow-item" [class.active]="uploadedPdf">
+          <span>2</span>
+          Analyze
+        </div>
+
+        <div class="flow-line"></div>
+
+        <div class="flow-item" [class.active]="answerResult">
+          <span>3</span>
+          Answer
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right: Chat Panel -->
+    <main class="chat-panel">
+      <div class="chat-header">
+        <div>
+          <span class="small-label">PDF Assistant</span>
+          <h2>Chat with your document</h2>
+        </div>
+
+        <div class="assistant-badge">
+          <span>🧠</span>
+          Ready
+        </div>
+      </div>
+
+      <div class="chat-body">
+        <div class="empty-chat" *ngIf="!answerResult">
+          <div class="empty-icon">💬</div>
+
+          <h3>Ask anything from your PDF</h3>
+
+          <p>
+            Upload a document, write your own question below, and the assistant will return a focused answer from the PDF content.
+          </p>
+        </div>
+
+        <div class="message-row user-message" *ngIf="answerResult && question">
+          <div class="message-avatar">You</div>
+
+          <div class="message-bubble user-bubble">
+            {{ question }}
+          </div>
+        </div>
+
+        <div class="message-row assistant-message" *ngIf="answerResult">
+          <div class="message-avatar bot">AI</div>
+
+          <div class="message-content">
+            <div class="message-bubble bot-bubble" *ngIf="answerResult.success; else noAnswer">
+              <span class="answer-tag">Generated Answer</span>
+              <p>{{ answerResult.answer }}</p>
+            </div>
+
+            <ng-template #noAnswer>
+              <div class="message-bubble warning-bubble">
+                {{ answerResult.message || 'No clear answer found.' }}
+              </div>
+            </ng-template>
+
+            <div class="answer-meta" *ngIf="answerResult.success">
+              <span *ngIf="answerResult.page">
+                📌 Page {{ answerResult.page }}
+              </span>
+
+              <span *ngIf="answerResult.confidence">
+                ✨ {{ answerResult.confidence | number:'1.2-3' }} confidence
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="composer">
+        <div class="question-input">
+          <textarea
+            rows="4"
+            [(ngModel)]="question"
+            placeholder="Ask a question about your PDF..."
+          ></textarea>
+        </div>
+
+        <div class="composer-tools">
+          <div class="range-wrap">
+            <label>Relevant chunks</label>
+
+            <div class="range-line">
+              <input
+                type="range"
+                min="1"
+                max="10"
+                [(ngModel)]="topK"
+              />
+
+              <span>{{ topK }}</span>
+            </div>
+          </div>
+
+          <button
+            class="main-btn ask-btn"
+            type="button"
+            (click)="askQuestion()"
+            [disabled]="!uploadedPdf || loadingAnswer"
+          >
+            <span *ngIf="!loadingAnswer">Ask PDF</span>
+
+            <span *ngIf="loadingAnswer" class="loader-text">
+              <i></i>
+              Searching...
+            </span>
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="error-message" *ngIf="errorMessage">
+    <span>⚠</span>
+    {{ errorMessage }}
+  </div>
+</section>
