@@ -7,7 +7,7 @@ import { AskPdfRequest, AskPdfResponse, UploadPdfResponse } from './pdf-qa.model
   providedIn: 'root'
 })
 export class PdfQaService {
-  private readonly apiUrl = 'http://127.0.0.1:8000/api/pdf';
+ private readonly apiUrl = 'https://madoona-eng-pdf-qa-backend.hf.space/api/pdf';
 
   constructor(private http: HttpClient) {}
 
